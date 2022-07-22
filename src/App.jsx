@@ -1,4 +1,29 @@
 import { useReducer } from "react";
+import { 
+    GlobalStyle, 
+    All, 
+    BackgroundMobile, 
+    BackgroundDesktop, 
+    Header, 
+    Title, 
+    IconDiv,
+    Icon,
+    Main,
+    InputRow, 
+    Circle, 
+    Input, 
+    List, 
+    ListItem,
+    ToggleButton, 
+    CheckIcon, 
+    BottomRow, 
+    ItemsLeft, 
+    ClearButton, 
+    FiltersDesktop, 
+    ButtonsDiv, 
+    FilterButton, 
+    FiltersMobile
+} from "./StyledComponents"
 
 const ACTIONS = {
     ADD_TODO: 'add-todo',
@@ -45,46 +70,56 @@ function generateKey() {
 }
 
 function App() {
-    let [state, dispatch] = useReducer(reducer, { todos: [
-        { id: 0, isComplete: true, text: 'Complete online Javscript course' },
-        { id: 1, isComplete: false, text: 'Jog around the park 3x' },
-        { id: 2, isComplete: false, text: '10 minutes meditation' },
-        { id: 3, isComplete: false, text: 'Read for 1 hour' },
-        { id: 4, isComplete: false, text: 'Pick up groceries' },
-        { id: 5, isComplete: false, text: 'Complete ToDo App on Frontend Mentor' },
-    ], filter: 'all', theme: 'dark' });
 
+    let [state, dispatch] = useReducer(reducer, {
+        todos: [
+            { id: 0, isComplete: true, text: 'Complete online Javscript course' },
+            { id: 1, isComplete: false, text: 'Jog around the park 3x' },
+            { id: 2, isComplete: false, text: '10 minutes meditation' },
+            { id: 3, isComplete: false, text: 'Read for 1 hour' },
+            { id: 4, isComplete: false, text: 'Pick up groceries' },
+            { id: 5, isComplete: false, text: 'Complete ToDo App on Frontend Mentor' },
+        ], filter: 'all', theme: 'dark'
+    });
+
+    let bgImgMobile = state.theme === 'dark' ? '/images/bg-mobile-dark.jpg' : '/images/bg-mobile-light.jpg';
+    let bgImgDesktop = state.theme === 'dark' ? '/images/bg-desktop-dark.jpg' : '/images/bg-desktop-light.jpg';
+    let themeIcon = state.theme === 'dark' ? '/images/icon-sun.svg' : '/images/icon-moon.svg';
     let brightBlue = 'hsl(220, 98%, 61%)';
     let mainBackground = state.theme === 'dark' ? '#181824' : '#f7f7f9';
     let cardBackground = state.theme === 'dark' ? '#25273c' : '#ffffff';
     let primaryText = state.theme === 'dark' ? '#FFFFFF' : '#646373';
     let secondaryText = state.theme === 'dark' ? '#4f5166' : '#c0bfc4';
     let borderColor = state.theme === 'dark' ? '#2c2e43' : '#EDEDEF';
-    let shadowColor = state.theme === 'dark' ? 'rgba(0, 0, 0, 0.192)' : 'rgba(129, 129, 129, 0.192)' ;
+    let itemBorderColor = state.theme === 'dark' ? '#37384c' : '#EDEDEF';
+    let shadowColor = state.theme === 'dark' ? 'rgba(0, 0, 0, 0.192)' : 'rgba(129, 129, 129, 0.192)';
+    let currItems = 0;
 
     return (
-        <div className="container-all" style={{ backgroundColor: mainBackground }}>
-            <div className="bg-img-mobile mobile"><img src={state.theme === 'dark' ? '/images/bg-mobile-dark.jpg' : '/images/bg-mobile-light.jpg'} alt="Background" /></div>
-            <div className="bg-img-desktop desktop"><img src={state.theme === 'dark' ? '/images/bg-desktop-dark.jpg' : '/images/bg-desktop-light.jpg'} alt="Background" /></div>
-            <div className="header">
-                <div className="todo-title">TODO</div>
-                <div className="container-theme-icon" onClick={() => dispatch({ type: ACTIONS.TOGGLE_THEME })}>
-                    <img src={state.theme === 'dark' ? '/images/icon-sun.svg' : '/images/icon-moon.svg'} className='theme-icon' alt="Theme icon" />
-                </div>
-            </div>
+        <All mainBackground={mainBackground}>
+            <GlobalStyle />
+            <BackgroundMobile><img src={bgImgMobile} alt="Background" /></BackgroundMobile>
+            <BackgroundDesktop><img src={bgImgDesktop} alt="Background" /></BackgroundDesktop>
 
-            <div className="container-main">
-                <div className="input-row" style={{ backgroundColor: cardBackground, boxShadow: '0px 15px 20px 5px ' + shadowColor }}>
-                    <div className="circle-shape" style={{ borderColor: borderColor }}></div>
-                    <input type="text" className="input-bar" placeholder="Create a new todo..." onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+            <Header>
+                <Title>TODO</Title>
+                <IconDiv title="Toggle theme between dark and light mode" onClick={() => dispatch({ type: ACTIONS.TOGGLE_THEME })}>
+                    <Icon src={themeIcon} alt="Theme icon" />
+                </IconDiv>
+            </Header>
+
+            <Main>
+                <InputRow title="Type to create a new entry" primaryText={primaryText} cardBackground={cardBackground} shadowColor={shadowColor}>
+                    <Circle borderColor={borderColor} />
+                    <Input placeholder="Create a new todo..." brightBlue={brightBlue} primaryText={primaryText} secondaryText={secondaryText} onKeyDown={(e) => {
+                        if (e.key === 'Enter' && e.target.value.length > 0) {
                             dispatch({ type: ACTIONS.ADD_TODO, payload: e.target.value, id: generateKey() });
                             e.target.value = '';
                         }
                     }} />
-                </div>
-                <div className="container-list" style={{ backgroundColor: cardBackground, boxShadow: '0px 15px 20px 5px ' + shadowColor }}>
+                </InputRow>
 
+                <List cardBackground={cardBackground} shadowColor={shadowColor}>
                     {state.todos.map((el) => {
                         if (state.filter === 'active') {
                             if (el.isComplete === true) return null;
@@ -92,57 +127,44 @@ function App() {
                         if (state.filter === 'completed') {
                             if (el.isComplete === false) return null;
                         }
-                        return <div key={el.id} className="list-item" style={{
-                            textDecoration: el.isComplete && 'line-through',
-                            color: el.isComplete ? secondaryText : primaryText,
-                            borderColor: borderColor
-                        }}>
-                            <button className="toggle-btn"
-                                style={{
-                                    background: el.isComplete && 'linear-gradient(to bottom, hsl(192, 100%, 67%), hsl(280, 87%, 65%))',
-                                    borderColor: borderColor
-                                }}
-                                onClick={() => dispatch({ type: ACTIONS.TOGGLE_TASK, payload: el.id })}>
-                                <img src="/images/icon-check.svg" className="icon-check" alt="Check icon" style={{ display: !el.isComplete && 'none' }} />
-                            </button>
+                        currItems++;
+                        return <ListItem key={el.id} isComplete={el.isComplete} itemBorderColor={itemBorderColor} primaryText={primaryText} secondaryText={secondaryText}>
+                            <ToggleButton title="Toggle task between active and completed" isComplete={el.isComplete} borderColor={borderColor} onClick={() => dispatch({ type: ACTIONS.TOGGLE_TASK, payload: el.id })}>
+                                <CheckIcon isComplete={el.isComplete} src="/images/icon-check.svg" alt="Check icon" />
+                            </ToggleButton>
                             {el.text}
-                        </div>
+                        </ListItem>
                     })}
-                </div>
-                <div className="last-row mobile" style={{ backgroundColor: cardBackground, borderColor: borderColor, boxShadow: '0px 15px 20px 5px ' + shadowColor }}>
-                    <div className="items-left">{state.todos.length} items left</div>
-                    <button className="btn-clear-completed" onClick={() => dispatch({ type: ACTIONS.CLEAR_COMPLETED })}>Clear Completed</button>
-                </div>
+                </List>
 
-                <div className="container-filters-desktop desktop" style={{ backgroundColor: cardBackground, borderColor: borderColor, boxShadow: '0px 15px 20px 5px ' + shadowColor }}>
-                    <div className="items-left">{state.todos.length} items left</div>
-                    <div className="buttons-group">
-                        <div className="btn-all"
-                            style={{ color: state.filter === 'all' && brightBlue }}
-                            onClick={() => state.filter !== 'all' && dispatch({ type: ACTIONS.FILTER_ALL })} >All</div>
-                        <div className="btn-active"
-                            style={{ color: state.filter === 'active' && brightBlue }}
-                            onClick={() => state.filter !== 'active' && dispatch({ type: ACTIONS.FILTER_ACTIVE })} >Active</div>
-                        <div className="btn-completed"
-                            style={{ color: state.filter === 'completed' && brightBlue }}
-                            onClick={() => state.filter !== 'completed' && dispatch({ type: ACTIONS.FILTER_COMPLETED })} >Completed</div>
-                    </div>
-                    <div className="btn-clear-completed" onClick={() => dispatch({ type: ACTIONS.CLEAR_COMPLETED })} style={{  }}>Clear Completed</div>
-                </div>
+                <BottomRow cardBackground={cardBackground} shadowColor={shadowColor} secondaryText={secondaryText} borderColor={borderColor}>
+                    <ItemsLeft title="Number of tasks displayed according to filter" secondaryText={secondaryText}>{currItems} item{currItems > 1 && 's'} left {currItems <= 1 && '\xA0'}</ItemsLeft>
+                    <ClearButton title="Removes all tasks marked completed" onClick={() => dispatch({ type: ACTIONS.CLEAR_COMPLETED })} primaryText={primaryText} secondaryText={secondaryText}>Clear Completed</ClearButton>
+                </BottomRow>
 
-                <div className="container-filters-mobile mobile" style={{ backgroundColor: cardBackground, boxShadow: '0px 15px 20px 5px ' + shadowColor }}>
-                    <button className="btn-all"
-                        style={{ color: state.filter === 'all' && brightBlue }}
-                        onClick={() => state.filter !== 'all' && dispatch({ type: ACTIONS.FILTER_ALL })} >All</button>
-                    <button className="btn-active"
-                        style={{ color: state.filter === 'active' && brightBlue }}
-                        onClick={() => state.filter !== 'active' && dispatch({ type: ACTIONS.FILTER_ACTIVE })} >Active</button>
-                    <button className="btn-completed"
-                        style={{ color: state.filter === 'completed' && brightBlue }}
-                        onClick={() => state.filter !== 'completed' && dispatch({ type: ACTIONS.FILTER_COMPLETED })} >Completed</button>
-                </div>
-            </div>
-        </div>
+                <FiltersDesktop cardBackground={cardBackground} secondaryText={secondaryText} borderColor={borderColor} shadowColor={shadowColor}>
+                    <ItemsLeft title="Number of tasks displayed according to filter" secondaryText={secondaryText}>{currItems} item{currItems > 1 && 's'} left {currItems <= 1 && '\xA0'}</ItemsLeft>
+                    <ButtonsDiv>
+                        <FilterButton filter={state.filter} brightBlue={brightBlue} name={'all'} title="Filter list to show all"
+                            onClick={() => state.filter !== 'all' && dispatch({ type: ACTIONS.FILTER_ALL })} >All</FilterButton>
+                        <FilterButton filter={state.filter} brightBlue={brightBlue} name={'active'} title="Filter list to show active tasks only"
+                            onClick={() => state.filter !== 'active' && dispatch({ type: ACTIONS.FILTER_ACTIVE })} >Active</FilterButton>
+                        <FilterButton filter={state.filter} brightBlue={brightBlue} name={'completed'} title="Filter list to show completed tasks only"
+                            onClick={() => state.filter !== 'completed' && dispatch({ type: ACTIONS.FILTER_COMPLETED })} >Completed</FilterButton>
+                    </ButtonsDiv>
+                    <ClearButton title="Removes all tasks marked completed" onClick={() => dispatch({ type: ACTIONS.CLEAR_COMPLETED })} primaryText={primaryText} secondaryText={secondaryText}>Clear Completed</ClearButton>
+                </FiltersDesktop>
+
+                <FiltersMobile cardBackground={cardBackground} shadowColor={shadowColor} secondaryText={secondaryText}>
+                    <FilterButton filter={state.filter} brightBlue={brightBlue} name={'all'} 
+                        onClick={() => state.filter !== 'all' && dispatch({ type: ACTIONS.FILTER_ALL })} >All</FilterButton>
+                    <FilterButton filter={state.filter} brightBlue={brightBlue} name={'active'}
+                        onClick={() => state.filter !== 'active' && dispatch({ type: ACTIONS.FILTER_ACTIVE })} >Active</FilterButton>
+                    <FilterButton filter={state.filter} brightBlue={brightBlue} name={'completed'}
+                        onClick={() => state.filter !== 'completed' && dispatch({ type: ACTIONS.FILTER_COMPLETED })} >Completed</FilterButton>
+                </FiltersMobile>
+            </Main>
+        </All>
     );
 }
 
