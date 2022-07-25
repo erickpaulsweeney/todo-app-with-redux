@@ -14,7 +14,7 @@ const tasksSlice = createSlice({
     },
     reducers: {
         addTodo: (state, action) => {
-            state.value.push({ id: new Date().getTime(), isComplete: false, text: action.payload });
+            state.value.unshift({ id: new Date().getTime(), isComplete: false, text: action.payload });
         },
         toggleTask: (state, action) => {
             for (let i = 0; i < state.value.length; i++) {
